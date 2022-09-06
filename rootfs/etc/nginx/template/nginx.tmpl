@@ -1063,13 +1063,16 @@ stream {
             modsecurity off;
             {{ end }}
 
+            rewrite_by_lua_block {
+                {{ if $externalAuth.AuthCacheKey }}
+                ngx.var.cache_key = ngx.encode_base64(ngx.sha1_bin(ngx.var.tmp_cache_key))
+                {{ end }}
+                plugins.run("auth")
+            }
+
             {{ if $externalAuth.AuthCacheKey }}
             set $tmp_cache_key '{{ $server.Hostname }}{{ $authPath }}{{ $externalAuth.AuthCacheKey }}';
             set $cache_key '';
-
-            rewrite_by_lua_block {
-                ngx.var.cache_key = ngx.encode_base64(ngx.sha1_bin(ngx.var.tmp_cache_key))
-            }
 
             proxy_cache auth_cache;
 
@@ -1079,6 +1082,18 @@ stream {
 
             proxy_cache_key "$cache_key";
             {{ end }}
+
+            header_filter_by_lua_block {
+                plugins.run("auth")
+            }
+
+            body_filter_by_lua_block {
+                plugins.run("auth")
+            }
+
+            log_by_lua_block {
+                plugins.run("auth")
+            }
 
             # ngx_auth_request module overrides variables in the parent request,
             # therefore we have to explicitly set this variable again so that when the parent request

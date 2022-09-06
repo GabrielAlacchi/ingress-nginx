@@ -304,6 +304,8 @@ type Configuration struct {
 	// The execution order follows the definition.
 	Plugins []string `json:"plugins,omitempty"`
 
+	AuthPlugins []string `json:"auth-plugins,omitempty"`
+
 	// If UseProxyProtocol is enabled ProxyRealIPCIDR defines the default the IP/network address
 	// of your external load balancer
 	ProxyRealIPCIDR []string `json:"proxy-real-ip-cidr,omitempty"`
